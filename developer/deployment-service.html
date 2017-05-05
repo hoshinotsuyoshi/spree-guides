@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>Deployment Service - Developer Guide | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="deployment" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="developer">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">Deployment Service - Developer Guide | Spree Commerce</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container" id="main">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <p>The Spree Deployment Service is a free tool that allows you to configure
+and deploy the Spree Software Stack on any dedicated cloud, virtual
+private or physical server.</p>
+
+<p>The service can be configured to create single and multi-server
+configurations on a wide range of Linux based operating systems, and
+supports deploying demo Spree applications or generating Capistrano
+recipes for deploying your own application.</p>
+
+<h2 id="understanding-server-roles">Understanding server roles</h2>
+
+<p>The Deployment Service supports a wide range of configuration topologies
+by allowing you to choose individual roles for each server within your
+deployment.</p>
+
+<p>Each role installs and configures different software packages on the
+target server, and a server can have one or more roles applied.</p>
+
+<p>Available roles currently include:</p>
+
+<ul>
+  <li>
+    <p><strong>Application Server</strong> - Installs and configures Nginx, Ruby, and
+more. Every deployment requires at least one Application Server, but
+can have as many as required.</p>
+  </li>
+  <li>
+    <p><strong>Database Server</strong> - Installs and configures MySQL, Ruby. Only one
+Database Server can be configured for a deployment.</p>
+  </li>
+  <li>
+    <p><strong>Utility Server</strong> - Installs and configures Ruby. A deployment can
+have as many Utility Servers as needed, but a Utility Server role
+cannot be shared with any other role. Utility Servers generally run
+Delayed Job workers, Solr indexes, Redis or Memcache services but
+these applications must be configured manually and will not be
+installed by the Deployment Service.</p>
+  </li>
+  <li>
+    <p><strong>Load Balancer</strong> - Can only be applied to an Application Server and
+configures Nginx to load balance Rails requests to all applications
+servers unicorn back ends. The Load Balancer will handle all
+requests for static assets (stylesheets, JavaScript files, images,
+etc).</p>
+  </li>
+</ul>
+
+<div class="note"><p>Every server will get some basic configuration, such as Rails
+Environment environment variable, placeholder directories for your Spree
+application, automatically generated database.yml and Procfile files,
+and more.</p>
+</div>
+
+<h2 id="typical-server-role-combinations">Typical server role combinations</h2>
+
+<p>For a <strong>Single Server</strong> deployment, you would select <strong>Application</strong> and
+<strong>Database</strong> as the two roles for your single server.</p>
+
+<p>For <strong>Multi Server</strong> deployments, you would generally select the
+following:</p>
+
+<ul>
+  <li>
+    <p>At least one dedicated <strong>Application Server</strong>.</p>
+  </li>
+  <li>
+    <p>One dedicated <strong>Database Server</strong>.</p>
+  </li>
+  <li>
+    <p>One application server can be designated as the <strong>Load Balancer</strong> if
+you have more that one application server (and you are not using a
+third party load balancing service).</p>
+  </li>
+  <li>
+    <p>Any number of <strong>Utility Servers</strong> as required by your application.</p>
+  </li>
+</ul>
+
+<h2 id="using-the-deployment-service">Using the deployment service</h2>
+
+<p>The deployment service can be accessed by via the
+<a href="http://spreecommerce.com/stores/">Stores</a> tab under <a href="http://spreecommerce.com/account">My
+Account</a>.</p>
+
+<p>Each Store can have one or more “deployments” configured (for
+production, staging or qa environments), and each deployment can have
+one or more servers.</p>
+
+<p>To create a deployment:</p>
+
+<p><strong>1.</strong> Add a new Store or click on an existing store, and choose the
+<strong>“Add Deployment Service”</strong> link.</p>
+
+<p>Each <strong>deployment</strong> has a number of global parameters which affects all
+servers configured within that environment including:</p>
+
+<ul>
+  <li>
+    <p><strong>Operating System</strong> - The Deployment Service currently supports
+Ubuntu 12.04 LTS.</p>
+  </li>
+  <li>
+    <p><strong>Rails Environment</strong> - Sets the server wide rails environment,
+default ‘production’.</p>
+  </li>
+  <li>
+    <p><strong>Ruby Version</strong> - Select the preferred Ruby version you would like
+installed.</p>
+  </li>
+  <li>
+    <p><strong>Spree Version</strong> - If you choose to install a sample application
+(see below), the Spree version selected here will be the one used by
+the sample app. If you choose to deploy your own custom
+application,\
+the Spree Version affects the Capistrano Recipe that gets generated.</p>
+  </li>
+  <li>
+    <p><strong>What would you like deployed</strong> - Choose “A Sample Application” if
+you do not have a Spree application ready to deploy, or “My own
+custom Spree application” if you do.</p>
+  </li>
+  <li>
+    <p><strong>Git URL for your application</strong> - Only available when deploying
+your own application and this value is only used to complete your
+generated Capistrano Recipe.</p>
+  </li>
+</ul>
+
+<p><strong>2.</strong> Once you’ve configured the global environments details, click
+“Add” to save the configuration.</p>
+
+<p>Now you need to provide details on each <strong>server</strong> that’s included in
+the environment:</p>
+
+<ul>
+  <li>
+    <p><strong>Fully Qualified Domain Name</strong> - This should be something like
+<code>app1.test.com</code> or <code>db1.test.com</code>, it does not
+need to be registered or resolvable it is purely used for naming
+purposes.</p>
+  </li>
+  <li>
+    <p><strong>IP Address</strong> - It’s important to supply the correct IP address
+as it’s referenced in several locations within the configuration and
+supplying an invalid value will result in problems with the
+configuration. You can use internal / private addresses for your
+servers as the only requirement is that all servers can communicate
+with each other using the addresses supplied.</p>
+  </li>
+  <li>
+    <p><strong>Unicorn Workers</strong> - This value is only required for servers with
+the <strong>Application Server</strong> role, and controls how many worker
+processes the unicorn master process will fork on startup. Setting
+this value correctly is important, see the <a href="deployment_options.html">Deployment Options Guide</a> for details on memory
+requirements / workers.</p>
+  </li>
+  <li>
+    <p><strong>Roles</strong> - Select the required roles for the server, see the
+<strong>Understanding Server Roles</strong> section above for more details.</p>
+  </li>
+</ul>
+
+<p><strong>3.</strong> When you’ve added the details for all the servers in your
+deployment, you should then change the <strong>Configuration Status</strong> from
+“New” to “Complete”.</p>
+
+<p>This will upload your server configurations to our deployment server,
+which may take a few moments. Refresh the page occasionally until you
+see each servers <strong>Status</strong> change from “Waiting for update from
+configuration server.” to “Ready to Deploy”.</p>
+
+<p><strong>4.</strong> Now each server will have a <strong>Initialize Configuration</strong> command
+that must be copied and executed on the relevant server.</p>
+
+<p>This needs to be done as root user, and can take several minutes to
+complete.</p>
+
+<div class="note"><p>It’s important to be aware that while all the <strong>Initialize
+Configurations</strong> commands appear similar they are server specific so be
+sure to run the correct command on each server.</p>
+</div>
+
+<div class="warning"><p>The <strong>Initialize Configuration</strong> command should only be run on
+servers that are intended to be dedicated Spree servers, it reconfigures
+large parts of the server to fulfill it’s assigned roles and many affect
+any other applications, configuration or data already present on a
+server.</p>
+</div>
+
+<p><strong>5.</strong> When the initialize configuration command completes the server
+will report it’s result and you should see each server’s Status
+eventually update to <strong>“Reported as ‘changed’“</strong>.</p>
+
+<div class="note"><p>If an error occurs during the build the status might not update or
+it may update as <strong>“Reported as ‘failed’“</strong>, in either event you should
+attempt to run the <strong>Update Configuration</strong> command listed.</p>
+</div>
+
+<p><strong>6.</strong> Finally when all servers have reported as either <strong>‘changed’</strong> or
+<strong>‘unchanged’</strong> the final step is to run the <strong>Update configuration</strong>
+command to set your site specific database passwords.</p>
+
+<p>The command is generally something like:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ FACTER_db_pass=YOUR_DB_PASSWORD puppet agent —test
+
+</pre></div>
+</div>
+</div>
+
+<p>It’s important to substitute YOUR_DB_PASSWORD with the actual password
+you require.</p>
+
+<p><strong>7.</strong> Congratulations you now have a fully configured environment ready
+for use.</p>
+
+<p>If you choose to deploy a “Sample Application” then you should be able
+to browser to your Application Servers IP address to view the store
+running.</p>
+
+<p>If you are deploying your own application, please refer to the <a href="ubuntu.html">Deploying your application on Ubuntu</a>, <a href="heroku.html">Deploying your application on Heroku</a>, or <a href="ninefold.html">Deploying your application on Ninefold</a> Guides for more.</p>
+
+<h2 id="application-process">Application Process</h2>
+
+<p>The Spree Deployment Service uses Foreman &amp; Upstart to define and manage all the processes required by your application.</p>
+
+<h3 id="using-foreman">Using Foreman</h3>
+
+<p>All application processes are managed using
+<a href="https://github.com/ddollar/foreman">Foreman</a> and a default Procfile is
+generated for you in <code>/data/spree/shared/config/Procfile</code></p>
+
+<p>By default this includes a single Unicorn master process, the unicorn
+workers are configured via the Deployment Server UI.</p>
+
+<p>Default Procfile contents:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ web: bundle exec unicorn_rails -c /data/app_name/shared/config/unicorn.rb -p $PORT -E ENV
+
+</pre></div>
+</div>
+</div>
+
+<p>The provided Capistrano deployment script symlinks the Procfile into
+location after each deploy.</p>
+
+<p>Capistrano Procfile Snippet:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>namespace <span class="symbol">:deploy</span> <span class="keyword">do</span>
+  desc <span class="string"><span class="delimiter">&quot;</span><span class="content">Symlink shared configs and folders on each release.</span><span class="delimiter">&quot;</span></span>
+  task <span class="symbol">:symlink_shared</span> <span class="keyword">do</span>
+    run <span class="string"><span class="delimiter">&quot;</span><span class="content">ln -nfs #/config/database.yml #/config/database.yml</span><span class="delimiter">&quot;</span></span>
+    run <span class="string"><span class="delimiter">&quot;</span><span class="content">ln -nfs </span><span class="inline"><span class="inline-delimiter">#{</span>shared_path<span class="inline-delimiter">}</span></span><span class="content">/config/Procfile </span><span class="inline"><span class="inline-delimiter">#{</span>release_path<span class="inline-delimiter">}</span></span><span class="content">/Procfile</span><span class="delimiter">&quot;</span></span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+after <span class="string"><span class="delimiter">'</span><span class="content">deploy:update_code</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">deploy:symlink_shared</span><span class="delimiter">'</span></span>
+
+</pre></div>
+</div>
+</div>
+
+<div class="note"><p>It’s important to remember to not edit the Procfile above
+directly, any changes to this file will be reset automatically by our
+configuration management system. See the “Customizing Processes” section
+below for more details on how to correctly change this file.</p>
+</div>
+
+<h3 id="upstart">Upstart</h3>
+
+<p>After each deployment of your application the Procfile is exported to
+Upstart compatible configuration files which the operating system uses
+to manage your application’s processes.</p>
+
+<p>Upstart is responsible for starting, stopping and restarting the
+processes and will detect if a process has stopped for some reason and
+automatically restart it. Upstart does not monitor for memory size
+growth, and will not restart leaky processes automatically.</p>
+
+<p>Using Upstart you control the processes of application in a number of
+ways:</p>
+
+<h4 id="all-processes">All Processes</h4>
+
+<p>You can use following commands to start, stop or restart all the
+processes in your application at once:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ sudo stop spree
+$ sudo start spree
+$ sudo restart spree
+
+</pre></div>
+</div>
+</div>
+
+<h4 id="processes-by-type">Processes by type</h4>
+
+<p>To control all processes of a specific type you can use:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ sudo start spree-web
+$ sudo stop spree-worker
+$ sudo restart spree-solr
+
+</pre></div>
+</div>
+</div>
+
+<h4 id="individual-processes">Individual Processes</h4>
+
+<p>You can control individual processes by prepending the process number at
+the end:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ sudo start spree-web-1
+$ sudo stop spree-worker-3
+$ sudo restart spree-solr-2
+
+</pre></div>
+</div>
+</div>
+
+<div class="note"><p>The process number is the concurrency number specified in the foreman export, and not the PID.</p>
+</div>
+
+<h3 id="customizing-processes">Customizing Processes</h3>
+
+<p>To add additional processes such as Delayed Job workers to your
+application, complete the following steps:</p>
+
+<ul>
+  <li>Copy the contents of the default Procfile and save it in the root our application.</li>
+  <li>Make any additions or changes you require.</li>
+  <li>Remove the Procfile symlink link line from your config/deploy.rb file.</li>
+  <li>Commit your changes and deploy the application.</li>
+  <li>When your application is deployed the new processes will be automatically started.</li>
+</ul>
+
+<p>Sample Procfile containing Delayed Job workers:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>$ web: bundle exec unicorn_rails -c /data/app_name/shared/config/unicorn.rb -p $PORT -E production
+$ worker: bundle exec rake jobs:work
+
+</pre></div>
+</div>
+</div>
+
+<h3 id="changing-process-concurrency">Changing process concurrency</h3>
+
+<p>By default the provided Capistrano script will export a single process
+for each entry in Procfile, for some process types you want to increase
+the number of processes started, for example Delayed Job workers. You
+can customize the number of process exported for each process type by
+editing the foreman:export task in the Capistrano script.</p>
+
+<p>Custom Capistrano <code>deploy.rb</code> - creating 3 worker processes:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre>namespace <span class="symbol">:foreman</span> <span class="keyword">do</span>
+  desc <span class="string"><span class="delimiter">&quot;</span><span class="content">Export the Procfile to Ubuntu's upstart scripts</span><span class="delimiter">&quot;</span></span>
+  task <span class="symbol">:export</span>, <span class="symbol">:roles</span> =&gt; <span class="symbol">:app</span> <span class="keyword">do</span>
+    run <span class="string"><span class="delimiter">&quot;</span><span class="content">cd </span><span class="inline"><span class="inline-delimiter">#{</span>current_path<span class="inline-delimiter">}</span></span><span class="content"> &amp;&amp; bundle exec foreman export upstart /etc/init -a </span><span class="inline"><span class="inline-delimiter">#{</span>application<span class="inline-delimiter">}</span></span><span class="content"> -c worker=3 -u spree</span><span class="delimiter">&quot;</span></span>
+  <span class="keyword">end</span>
+  …
+<span class="keyword">end</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>The <code>-c</code> (or <code>--concurrency</code>) switch accepts the process type and an integer
+for the number of processes to start up. You specify mulitple types by
+comma separating as follows: <code>processname=2,processname=4</code></p>
+
+<div class="warning"><p>It’s important to not export more than one :web process when
+using the default unicorn configuration, as this refers to the master
+process and not the workers, the worker count can be configured via the
+Deployment’s Service UI.</p>
+</div>
+
+<h2 id="configuration--customization">Configuration &amp; Customization</h2>
+
+<h3 id="configuration-management">Configuration Management</h3>
+
+<p>All servers configured with the Spree Deployment Service are configured
+as clients to our public Puppet server. Puppet is a ruby based
+configuration management system (similar to Chef), and using it allows
+us to centrally control and update all configurations to ensure your
+server is always running the best possible configuration.</p>
+
+<p>Using Puppet also restricts how you can edit or change certain key
+configuration files, we provide several extension points when you can
+make your changes to files while still receiving the benefits of Puppet
+for other files.</p>
+
+<div class="note"><p>Puppet is not configured (or intended) to be run as a client
+daemon on your server, you should only run the update commands on an as
+needed basis.</p>
+</div>
+
+<h3 id="server-configurations">Server Configurations</h3>
+
+<p>All servers are currently configured with the following basic elements:</p>
+
+<ul>
+  <li>Ruby - compiled from source using ruby-build, installed system wide</li>
+  <li>Puppet client 2.7.x</li>
+  <li>Git</li>
+  <li>Foreman - process management</li>
+</ul>
+
+<p>Depending on the role assigned to a server it may get some or all of the
+following:</p>
+
+<p><strong>Application Servers:</strong></p>
+
+<ul>
+  <li>Unicorn - rack application server</li>
+  <li>Nginx - web server / unicorn front end</li>
+</ul>
+
+<p><strong>Database Server:</strong></p>
+
+<ul>
+  <li>MySQL - database server</li>
+</ul>
+
+<h3 id="file-locations">File Locations</h3>
+
+<p>Every server contains a single directory that houses the application and
+all serves as a location to configure several key aspects of the servers
+software stack:</p>
+
+<ul>
+  <li>
+    <p><code>/data/</code> - top level directory that contains all application
+specific data.</p>
+  </li>
+  <li>
+    <p><code>/data/spree/</code> - houses the application itself, serves as the
+deploy destination in Capistrano scripts.</p>
+  </li>
+  <li>
+    <p><code>/data/spree/current/</code> - the current live / production version of
+the application code (symlink to the relevant releases
+subdirectory).</p>
+  </li>
+  <li>
+    <p><code>/data/spree/releases/</code> - contains current and last 5 deployed
+releases of the application’s code.</p>
+  </li>
+  <li>
+    <p><code>/data/spree/shared/</code> - directories and files that are common
+among all deployed versions of an application (like assets,
+configuration files, etc).</p>
+  </li>
+  <li><code>/data/spree/shared/config/</code> - contains several application
+specific configuration files including:
+    <ul>
+      <li><code>database.yml</code> - Automatically generated configuration file
+for Rails / ActiveRecord, contains all the details required to
+connect the associated applications database. This file is
+sym-linked into place as part of the Capistrano deploy process.</li>
+      <li><code>Procfile</code> - Automatically generated process configuration
+files, for more see the Application Processes article. This file
+is sym-linked into place as part of the Capistrano deploy
+process.</li>
+      <li><code>unicorn.rb</code> - Automatically generated unicorn configuration
+file, reference by the Procfile above when starting the
+application server processes.</li>
+    </ul>
+  </li>
+  <li><code>/etc/ssl</code> - You can upload your SSL certificate files into this
+directory and the will be automatically used by Puppet in your
+application Nginx configuration file. See the <a href="requesting_and_configuring_ssl.html">Requesting and
+Configuring SSL Guide</a> for more details.</li>
+</ul>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-tutorial-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/getting_started_tutorial.html'>Tutorials</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/getting_started_tutorial.html'>Getting Started</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/extensions_tutorial.html'>Extensions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deface_overrides_tutorial.html'>Deface Overrides</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-source-code-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/about.html'>Source Code</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/about.html'>About</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/navigating.html'>Navigating</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/getting_help.html'>Getting Help</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/contributing.html'>Contributing</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-core-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/addresses.html'>The Core</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/addresses.html'>Addresses</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/adjustments.html'>Adjustments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/calculators.html'>Calculators</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/inventory.html'>Inventory</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/payments.html'>Payments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/preferences.html'>Preferences</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/products.html'>Products</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/promotions.html'>Promotions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/orders.html'>Orders</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/shipments.html'>Shipments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/taxation.html'>Taxation</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-customization-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/authentication.html'>Customization</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/authentication.html'>Authentication</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/i18n.html'>Internationalization (i18n)</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/view.html'>View</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/asset.html'>Asset</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/logic.html'>Logic</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/s3_storage.html'>Use S3</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/checkout.html'>Checkout</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-deployment-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/deployment-service.html'>Deployment</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/ninefold.html'>Ninefold</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/heroku.html'>Heroku</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/ansible-ubuntu.html'>Ansible Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/manual-ubuntu.html'>Manual Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_options.html'>Deployment Options</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment-service.html'>Deployment Service</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_tips.html'>Deployment Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/requesting_and_configuring_ssl.html'>Requesting/Configuring SSL</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/seo.html'>Advanced Topics</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/seo.html'>Search Engine Optimization</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/developer_tips.html'>Developer Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/migration.html'>Migrating to Spree</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/security.html'>Security</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/testing.html'>Testing Spree Applications</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/upgrades/index.html'>Upgrade Guides</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-sixty-to-point-seventy.html'>0.60.x to 0.70.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-seventy-to-one-dot-oh.html'>0.70.x to 1.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-oh-to-one-dot-one.html'>1.0.x to 1.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-one-to-one-dot-two.html'>1.1.x to 1.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-two-to-one-dot-three.html'>1.2.x to 1.3.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-three-to-two-dot-oh.html'>1.3.x to 2.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-oh-to-two-dot-one.html'>2.0.x to 2.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-one-to-two-dot-two.html'>2.1.x to 2.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-two-to-two-dot-three.html'>2.2.x to 2.3.x</a> <div 
+          class="toc"></div></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

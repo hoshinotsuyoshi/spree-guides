@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>Asset Customization - Developer Guide | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="customization" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="developer">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">Asset Customization - Developer Guide | Spree Commerce</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container" id="main">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <h3 id="overview">Overview</h3>
+
+<p>This guide covers how Spree manages its JavaScript, stylesheet and image
+assets and how you can extend and customize them including:</p>
+
+<ul>
+  <li>Understanding Spree’s use of the Rails asset pipeline</li>
+  <li>Managing application specific assets</li>
+  <li>Managing extension specific assets</li>
+  <li>Overriding Spree’s core assets</li>
+</ul>
+
+<h3 id="sprees-asset-pipeline">Spree’s Asset Pipeline</h3>
+
+<p>With the release of 3.1 Rails now supports powerful asset management
+features and Spree fully leverages these features to further extend and
+simplify its customization potential. Using asset customization
+techniques outlined below you be able to adapt all the JavaScript,
+stylesheets and images contained in Spree to easily provide a fully
+custom experience.</p>
+
+<p>All Spree generated (or upgraded) applications include an <code>app/assets</code>
+directory (as is standard for all Rails 3.1 apps). We’ve taken this one
+step further by subdividing each top level asset directory (images,
+JavaScript files, stylesheets) into frontend and backend directories. This is
+designed to keep assets from the frontend and backend from conflicting with each other.</p>
+
+<p>A typical assets directory for a Spree application will look like:</p>
+
+<pre><code>app
+|-- assets
+    |-- images
+    |   |-- spree
+    |       |-- frontend
+    |       |-- backend
+    |-- javascripts
+    |   |-- spree
+    |       |-- frontend
+    |       |   |-- all.js
+    |       |-- backend
+    |           |-- all.js
+    |-- stylesheets
+    |   |-- spree
+    |       |-- frontend
+    |       |   |-- all.css
+    |       |-- backend
+    |           |-- all.css
+</code></pre>
+
+<p>Spree also generates four top level manifests (all.css &amp; all.js, see
+above) that require all the core extension’s and site specific
+stylesheets / JavaScript files.</p>
+
+<h4 id="how-core-extensions-engines-manage-assets">How core extensions (engines) manage assets</h4>
+
+<p>All core engines have been updated to provide four asset manifests that
+are responsible for bundling up all the JavaScript files and stylesheets
+required for that engine.</p>
+
+<p>For example, Spree provides the following manifests:</p>
+
+<pre><code>vendor
+|-- assets
+    |-- javascripts
+    |   |-- spree
+    |       |-- frontend
+    |       |   |-- all.js
+    |       |-- backend
+    |           |-- all.js
+    |-- stylesheets
+    |   |-- spree
+    |       |-- frontend
+    |       |   |-- all.css
+    |       |-- backend
+    |           |-- all.css
+</code></pre>
+
+<p>These manifests are included by default by the
+relevant all.css or all.js in the host Spree application. For example,
+<code>vendor/assets/javascripts/spree/backend/all.js</code> includes:</p>
+
+<pre><code>//= require jquery
+//= require jquery_ujs
+
+//= require spree/backend
+
+//= require_tree .
+</code></pre>
+
+<p>External JavaScript libraries, stylesheets and images have also be
+relocated into vendor/assets (again Rails 3.1 standard approach), and
+all core extensions no longer have public directories.</p>
+
+<h3 id="managing-your-applications-assets">Managing your application’s assets</h3>
+
+<p>Assets that customize your Spree store should go inside the appropriate
+directories inside <code>vendor/assets/images/spree</code>, <code>vendor/assets/javascripts/spree</code>,
+or <code>vendor/assets/stylesheets/spree</code>. This is done so that these assets do
+not interfere with other parts of your application.</p>
+
+<h3 id="managing-your-extensions-assets">Managing your extension’s assets</h3>
+
+<p>We’re suggesting that all third party extensions should adopt the same
+approach as Spree and provide the same four (or less depending on
+what the extension requires) manifest files, using the same directory
+structure as outlined above.</p>
+
+<p>Third party extension manifest files will not be automatically included
+in the relevant all.(js|css) files so it’s important to document the
+manual inclusion in your extensions installation instructions or provide
+a Rails generator to do so.</p>
+
+<p>For an example of an extension using a generator to install assets and
+migrations take a look at the <a href="https://github.com/spree/spree_fancy/blob/master/lib/generators/spree_fancy/install/install_generator.rb">install_generator for spree_fancy</a>.</p>
+
+<h3 id="overriding-sprees-core-assets">Overriding Spree’s core assets</h3>
+
+<p>Overriding or replacing any of Spree’s internal assets is even easier
+than before. It’s recommended to attempt to replace as little as
+possible in a given JavaScript or stylesheet file to help ease future
+upgrade work required.</p>
+
+<p>The methods listed below will work for both applications, extensions and
+themes with one noticeable difference: Extension &amp; theme asset files
+will not be automatically included (see above for instructions on how to
+include asset files from your extensions / themes).</p>
+
+<h4 id="overriding-individual-css-styles">Overriding individual CSS styles</h4>
+
+<p>Say for example you want to replace the following CSS snippet:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="comment">/* spree/app/assets/stylesheets/spree/frontend/screen.css */</span>
+
+<span class="type">div</span><span class="constant">#footer</span> {
+ <span class="key">clear</span>: <span class="value">both</span>;
+}
+
+</pre></div>
+</div>
+</div>
+
+<p>You can now just create a new stylesheet inside
+<code>your_app/vendor/assets/stylesheets/spree/frontend/</code> and include the following CSS:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="comment">/* vendor/assets/stylesheets/spree/frontend/foo.css */</span>
+
+<span class="type">div</span><span class="constant">#footer</span> {
+ <span class="key">clear</span>: <span class="value">none</span>;
+ <span class="key">border</span>: <span class="float">1px</span> <span class="value">solid</span> <span class="value">red</span>;
+}
+
+</pre></div>
+</div>
+</div>
+
+<p>The <code>frontend/all.css</code> manifest will automatically include <code>foo.css</code> and it
+will actually include both definitions with the one from <code>foo.css</code> being
+included last, hence it will be the rule applied.</p>
+
+<h4 id="overriding-entire-css-files">Overriding entire CSS files</h4>
+
+<p>To replace an entire stylesheet as provided by Spree you simply need to
+create a file with the same name and save it to the corresponding path
+within your application’s or extension’s <code>vendor/assets/stylesheets</code>
+directory.</p>
+
+<p>For example, to replace <code>spree/frontend/all.css</code> you would save the replacement
+to <code>your_app/vendor/assets/stylesheets/spree/frontend/all.css</code>.</p>
+
+<div class="note"><p>This same method can also be used to override stylesheets provided by
+third-party extensions.</p>
+</div>
+
+<h4 id="overriding-individual-javascript-functions">Overriding individual JavaScript functions</h4>
+
+<p>A similar approach can be used for JavaScript functions. For example, if
+you wanted to override the <code>show_variant_images</code> method:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre> <span class="comment">// spree/app/assets/javascripts/spree/frontend/product.js</span>
+
+<span class="keyword">var</span> <span class="function">show_variant_images</span> = <span class="keyword">function</span>(variant_id) {
+  <span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">li.vtmb</span><span class="delimiter">'</span></span>).hide();
+  <span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">li.vtmb-</span><span class="delimiter">'</span></span> + variant_id).show();
+  <span class="keyword">var</span> currentThumb = <span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">#</span><span class="delimiter">'</span></span> +
+    <span class="predefined">$</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">#main-image</span><span class="delimiter">&quot;</span></span>).data(<span class="string"><span class="delimiter">'</span><span class="content">selectedThumbId</span><span class="delimiter">'</span></span>));
+
+  <span class="comment">// if currently selected thumb does not belong to current variant,</span>
+  <span class="comment">// nor to common images,</span>
+  <span class="comment">// hide it and select the first available thumb instead.</span>
+
+  <span class="keyword">if</span>(!currentThumb.hasClass(<span class="string"><span class="delimiter">'</span><span class="content">vtmb-</span><span class="delimiter">'</span></span> + variant_id) &amp;&amp;
+    !currentThumb.hasClass(<span class="string"><span class="delimiter">'</span><span class="content">tmb-all</span><span class="delimiter">'</span></span>)) {
+   <span class="keyword">var</span> thumb = <span class="predefined">$</span>(<span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">ul.thumbnails li:visible</span><span class="delimiter">'</span></span>).eq(<span class="integer">0</span>));
+   <span class="keyword">var</span> newImg = thumb.find(<span class="string"><span class="delimiter">'</span><span class="content">a</span><span class="delimiter">'</span></span>).attr(<span class="string"><span class="delimiter">'</span><span class="content">href</span><span class="delimiter">'</span></span>);
+   <span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">ul.thumbnails li</span><span class="delimiter">'</span></span>).removeClass(<span class="string"><span class="delimiter">'</span><span class="content">selected</span><span class="delimiter">'</span></span>);
+   thumb.addClass(<span class="string"><span class="delimiter">'</span><span class="content">selected</span><span class="delimiter">'</span></span>);
+   <span class="predefined">$</span>(<span class="string"><span class="delimiter">'</span><span class="content">#main-image img</span><span class="delimiter">'</span></span>).attr(<span class="string"><span class="delimiter">'</span><span class="content">src</span><span class="delimiter">'</span></span>, newImg);
+   <span class="predefined">$</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">#main-image</span><span class="delimiter">&quot;</span></span>).data(<span class="string"><span class="delimiter">'</span><span class="content">selectedThumb</span><span class="delimiter">'</span></span>, newImg);
+   <span class="predefined">$</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">#main-image</span><span class="delimiter">&quot;</span></span>).data(<span class="string"><span class="delimiter">'</span><span class="content">selectedThumbId</span><span class="delimiter">'</span></span>, thumb.attr(<span class="string"><span class="delimiter">'</span><span class="content">id</span><span class="delimiter">'</span></span>));
+ }
+}
+
+</pre></div>
+</div>
+</div>
+
+<p>Again, just create a new JavaScript file inside
+<code>your_app/vendor/assets/javascripts/spree/frontend</code> and include the new method
+definition:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre> <span class="comment">// your_app/vendor/assets/javascripts/spree/frontend/foo.js</span>
+
+<span class="keyword">var</span> <span class="function">show_variant_images</span> = <span class="keyword">function</span>(variant_id) {
+ alert(<span class="string"><span class="delimiter">'</span><span class="content">hello world</span><span class="delimiter">'</span></span>);
+}
+
+</pre></div>
+</div>
+</div>
+
+<p>The resulting <code>frontend/all.js</code> would include both methods, with the latter
+being the one executed on request.</p>
+
+<h4 id="overriding-entire-javascript-files">Overriding entire JavaScript files</h4>
+
+<p>To replace an entire JavaScript file as provided by Spree you simply
+need to create a file with the same name and save it to the
+corresponding path within your application’s or extension’s
+<code>app/assets/javascripts</code> directory.</p>
+
+<p>For example, to replace <code>spree/frontend/all.js</code> you would save the replacement to
+<code>your_app/vendor/assets/javascripts/spree/frontend/all.js</code>.</p>
+
+<div class="note"><p>This same method can be used to override JavaScript files provided
+by third-party extensions.</p>
+</div>
+
+<h4 id="overriding-images">Overriding images</h4>
+
+<p>Finally, images can be replaced by substituting the required file into
+the same path within your application or extension as the file you would
+like to replace.</p>
+
+<p>For example, to replace the Spree logo you would simply copy your logo
+to: <code>your_app/vendor/assets/images/logo/spree_50.png</code>.</p>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-tutorial-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/getting_started_tutorial.html'>Tutorials</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/getting_started_tutorial.html'>Getting Started</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/extensions_tutorial.html'>Extensions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deface_overrides_tutorial.html'>Deface Overrides</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-source-code-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/about.html'>Source Code</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/about.html'>About</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/navigating.html'>Navigating</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/getting_help.html'>Getting Help</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/contributing.html'>Contributing</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-core-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/addresses.html'>The Core</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/addresses.html'>Addresses</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/adjustments.html'>Adjustments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/calculators.html'>Calculators</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/inventory.html'>Inventory</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/payments.html'>Payments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/preferences.html'>Preferences</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/products.html'>Products</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/promotions.html'>Promotions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/orders.html'>Orders</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/shipments.html'>Shipments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/taxation.html'>Taxation</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-customization-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/authentication.html'>Customization</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/authentication.html'>Authentication</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/i18n.html'>Internationalization (i18n)</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/view.html'>View</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/asset.html'>Asset</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/logic.html'>Logic</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/s3_storage.html'>Use S3</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/checkout.html'>Checkout</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-deployment-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/deployment-service.html'>Deployment</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/ninefold.html'>Ninefold</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/heroku.html'>Heroku</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/ansible-ubuntu.html'>Ansible Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/manual-ubuntu.html'>Manual Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_options.html'>Deployment Options</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment-service.html'>Deployment Service</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_tips.html'>Deployment Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/requesting_and_configuring_ssl.html'>Requesting/Configuring SSL</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/seo.html'>Advanced Topics</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/seo.html'>Search Engine Optimization</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/developer_tips.html'>Developer Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/migration.html'>Migrating to Spree</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/security.html'>Security</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/testing.html'>Testing Spree Applications</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/upgrades/index.html'>Upgrade Guides</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-sixty-to-point-seventy.html'>0.60.x to 0.70.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-seventy-to-one-dot-oh.html'>0.70.x to 1.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-oh-to-one-dot-one.html'>1.0.x to 1.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-one-to-one-dot-two.html'>1.1.x to 1.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-two-to-one-dot-three.html'>1.2.x to 1.3.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-three-to-two-dot-oh.html'>1.3.x to 2.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-oh-to-two-dot-one.html'>2.0.x to 2.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-one-to-two-dot-two.html'>2.1.x to 2.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-two-to-two-dot-three.html'>2.2.x to 2.3.x</a> <div 
+          class="toc"></div></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

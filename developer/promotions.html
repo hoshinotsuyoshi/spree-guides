@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>Promotions - Developer Guide | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="core" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="developer">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">Promotions - Developer Guide | Spree Commerce</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container" id="main">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <h2 id="overview">Overview</h2>
+
+<p>Promotions within Spree are used to provide discounts to orders, as well as to add potential additional items at no extra cost. Promotions are one of the most
+complex areas within Spree, as there are a large number of moving parts to consider.</p>
+
+<p>Promotions can be activated in three different ways:</p>
+
+<ul>
+  <li>When a user adds a product to their cart</li>
+  <li>When a user enters a coupon code during the checkout process</li>
+  <li>When a user visits a page within the Spree store</li>
+</ul>
+
+<p>Promotions for these individual ways are activated through their corresponding <code>PromotionHandler</code> class, once they’ve been checked for eligibility.</p>
+
+<p>Promotions relate to two other main components: <code>actions</code> and <code>rules</code>. When a promotion is activated, the actions for the promotion are performed, passing in the payload from the <code>Spree::PromotionHandler</code> call. Rules are used to determine if a promotion meets certain criteria in order to be applicable.</p>
+
+<p>In some special cases where a promotion has a <code>code</code> or a <code>path</code> configured for it, the promotion will only be activated if the payload’s code or path match the promotion’s. The <code>code</code> attribute is used for promotion codes, where a user must enter a code to receive the promotion, and the <code>path</code> attribute is used to apply a promotion once a user has visited a specific path.</p>
+
+<div class="warning"><p>Path-based promotions will only work when the <code>Spree::PromotionHandler::Page</code> class is used, as in <code>Spree::ContentController</code> from <code>spree_frontend</code>.</p>
+</div>
+
+<p>A promotion may also have a <code>usage_limit</code> attribute set, which restricts how many times the promotion can be used.</p>
+
+<h2 id="actions">Actions</h2>
+
+<p>There are four actions that come with spree:</p>
+
+<ul>
+  <li>An order-level adjustment</li>
+  <li>An item-level adjustment</li>
+  <li>Create line items</li>
+  <li>Free shipping</li>
+</ul>
+
+<h3 id="creating-an-adjustment">Creating an Adjustment</h3>
+
+<p>When a <code>CreateAdjustment</code> action is undertaken, an adjustment is automatically applied to the order, unless the promotion has already applied an adjustment to the order.</p>
+
+<p>Once the adjustment has been applied to the order, its eligibility is re-checked every time the order is saved, by way of the <code>Adjustment#determine_eligibility</code> method. This calls the <code>Promotion#eligible?</code> method, which uses <code>Promotion#rules_are_eligible?</code> to determine if the promotion is still eligible based on its rules. For how this process works, please see the <a href="#rules">rules section</a> below.</p>
+
+<p>An adjustment to an order from a promotion depends on the calculators. For more information about calculators, please see the <a href="calculators.html">Calculators guide</a>.</p>
+
+<h3 id="creating-an-item-adjustment">Creating an item adjustment</h3>
+
+<p>When a <code>CreateItemAdjustments</code> action is undertaken, an adjustment is automatically applied to each item within the order, unless the action has already been performed on that line item</p>
+
+<p>The eligibility of the item for this promotion is re-checked whenever the item is updated. Its eligibility is based off the rules of the promotion.</p>
+
+<p>An adjustment to an order from a promotion depends on the calculators. For more information about calculators, please see the <a href="calculators.html">Calculators guide</a>.</p>
+
+<h3 id="free-shipping">Free Shipping</h3>
+
+<p>When a <code>FreeShipping</code> action is undertaken, all shipments within the order have their prices negated. Just like with prior actions, the eligibility of this promotion is checked again whenever a shipment changes.</p>
+
+<h3 id="adding-a-line-item">Adding a Line Item</h3>
+
+<p>When a <code>CreateLineItem</code> action is undertaken, a series of line items are automatically added to the order, which may alter the order’s price. The promotion with an action to add a line item can also have another action to add an adjustment to the order to nullify the cost of adding the product to the order.</p>
+
+<h3 id="registering-a-new-action">Registering a New Action</h3>
+
+<p>You can create a new action for Spree’s promotion engine by inheriting from <code>Spree::PromotionAction</code>, like this:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="keyword">class</span> <span class="class">MyPromotionAction</span> &lt; <span class="constant">Spree</span>::<span class="constant">PromotionAction</span>
+  <span class="keyword">def</span> <span class="function">perform</span>(options={})
+    ...
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+</pre></div>
+</div>
+</div>
+
+<div class="note"><p>You can access promotion information using the <code>promotion</code> method within any <code>Spree::PromotionAction</code>.</p>
+</div>
+
+<p>This action must then be registered with Spree, which can be done by adding this code to <code>config/initializers/spree.rb</code>:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="constant">Rails</span>.application.config.spree.promotions.actions &lt;&lt; <span class="constant">MyPromotionAction</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>Once this has been registered, it will be available within Spree’s interface. To provide translations for the interface, you will need to define them within your locale file. For instance, to define English translations for your new promotion action, use this code within <code>config/locales/en.yml</code>:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="key">en</span>:
+  <span class="key">spree</span>:
+    <span class="key">promotion_action_types</span>:
+      <span class="key">my_promotion_action</span>:
+        <span class="key">name</span>: <span class="string"><span class="content">My Promotion Action</span></span>
+        <span class="key">description</span>: <span class="string"><span class="content">Performs my promotion action.</span></span>
+
+</pre></div>
+</div>
+</div>
+
+<h2 id="rules">Rules</h2>
+
+<p>There are five rules which come with Spree:</p>
+
+<ul>
+  <li><code>FirstOrder</code>: The user’s order is their first.</li>
+  <li><code>ItemTotal</code>: The order’s total is greater than (or equal to) a given value.</li>
+  <li><code>Product</code>: An order contains a specific product.</li>
+  <li><code>User</code> The order is by a specific user.</li>
+  <li><code>UserLoggedIn</code>: The user is logged in.</li>
+</ul>
+
+<p>Rules are used by Spree to determine if a promotion is applicable to an order and can be matched in one of two ways: all of the rules must match, or one rule must match. This is determined by the <code>match_policy</code> attribute on the <code>Promotion</code> object.</p>
+
+<p>**************** TODO ****************</p>
+<p>Offer examples of ways to use the match_policy attribute</p>
+<p>**************************************</p>
+
+<h3 id="registering-a-new-rule">Registering a New Rule</h3>
+
+<p>To register a new rule with Spree, first define a class that inherits from <code>Spree::PromotionRule</code>, like this:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="keyword">class</span> <span class="class">MyPromotionRule</span> &lt; <span class="constant">Spree</span>::<span class="constant">PromotionRule</span>
+  <span class="keyword">def</span> <span class="function">eligible?</span>(order)
+    ...
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>The <code>eligible?</code> method should then return <code>true</code> or <code>false</code> to indicate if the promotion should be eligible for an order. You can retrieve promotion information by calling <code>promotion</code>.</p>
+
+<p>Then register it using this code inside <code>config/initializers/spree.rb</code>:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="constant">Rails</span>.application.config.spree.promotions.rules &lt;&lt; <span class="constant">MyPromotionRule</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>NOTE: proper location and file name for the rule in this example would be: app/models/spree/promotion/rules/my_promotion_rule.rb</p>
+
+<p>To get your rule to appear in the admin promotions interface you have a few more changes to make.</p>
+
+<p>Create a partial for your new rule in app/views/spree/admin/promotions/rules/_my_promotion_rule.html.erb.</p>
+
+<p>This file can be as simple as an empty file if your rule requires no parameters, or it may require more complex markup to enable setting values for your new rule. Check out some of the rule partials provided with Spree in the backend sources.</p>
+
+<p>And finally, your new rule must have a name and description defined for the locale you will be using it in. For English, edit config/locales/en.yml and add the following to support our new example rule:</p>
+
+<p>~~~ en:
+  spree:
+    promotion_rule_types:
+            my_promotion_rule:
+              name: “My Promotion Rule”
+              description: “Rule to define my new promotion”</p>
+
+<p>~~~</p>
+
+<p>Restart your application. Once this rule has been registered, it will be available within Spree’s admin interface.</p>
+
+<p>**************** TODO ****************</p>
+<p>Write about Spree::Promo::CouponApplicator</p>
+<p>**************************************</p>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-tutorial-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/getting_started_tutorial.html'>Tutorials</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/getting_started_tutorial.html'>Getting Started</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/extensions_tutorial.html'>Extensions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deface_overrides_tutorial.html'>Deface Overrides</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-source-code-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/about.html'>Source Code</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/about.html'>About</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/navigating.html'>Navigating</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/getting_help.html'>Getting Help</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/contributing.html'>Contributing</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-core-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/addresses.html'>The Core</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/addresses.html'>Addresses</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/adjustments.html'>Adjustments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/calculators.html'>Calculators</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/inventory.html'>Inventory</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/payments.html'>Payments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/preferences.html'>Preferences</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/products.html'>Products</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/promotions.html'>Promotions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/orders.html'>Orders</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/shipments.html'>Shipments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/taxation.html'>Taxation</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-customization-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/authentication.html'>Customization</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/authentication.html'>Authentication</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/i18n.html'>Internationalization (i18n)</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/view.html'>View</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/asset.html'>Asset</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/logic.html'>Logic</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/s3_storage.html'>Use S3</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/checkout.html'>Checkout</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-deployment-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/deployment-service.html'>Deployment</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/ninefold.html'>Ninefold</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/heroku.html'>Heroku</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/ansible-ubuntu.html'>Ansible Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/manual-ubuntu.html'>Manual Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_options.html'>Deployment Options</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment-service.html'>Deployment Service</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_tips.html'>Deployment Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/requesting_and_configuring_ssl.html'>Requesting/Configuring SSL</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/seo.html'>Advanced Topics</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/seo.html'>Search Engine Optimization</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/developer_tips.html'>Developer Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/migration.html'>Migrating to Spree</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/security.html'>Security</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/testing.html'>Testing Spree Applications</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/upgrades/index.html'>Upgrade Guides</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-sixty-to-point-seventy.html'>0.60.x to 0.70.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-seventy-to-one-dot-oh.html'>0.70.x to 1.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-oh-to-one-dot-one.html'>1.0.x to 1.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-one-to-one-dot-two.html'>1.1.x to 1.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-two-to-one-dot-three.html'>1.2.x to 1.3.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-three-to-two-dot-oh.html'>1.3.x to 2.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-oh-to-two-dot-one.html'>2.0.x to 2.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-one-to-two-dot-two.html'>2.1.x to 2.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-two-to-two-dot-three.html'>2.2.x to 2.3.x</a> <div 
+          class="toc"></div></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

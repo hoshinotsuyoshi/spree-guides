@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>http://edgeguides.spreecommerce.com/</id>
+  <title>GitHub API Changes</title>
+  <updated>2012-10-23T15:00:00Z</updated>
+  <link rel="alternate" href="http://edgeguides.spreecommerce.com/" />
+  <link rel="self" href="http://edgeguides.spreecommerce.com/feed/" />
+  <author>
+    <name>technoweenie</name>
+    <uri>https://github.com/technoweenie</uri>
+  </author>
+  <entry>
+    <id>tag:edgeguides.spreecommerce.com,2012-10-24:/api/changes/2012-10-24-1-2-1-and-1-3-0-api-changes.html</id>
+    <title type="html">Spree 1.2.1 and 1.3.0 API changes</title>
+    <published>2012-10-23T15:00:00Z</published>
+    <updated>2012-10-23T15:00:00Z</updated>
+    <author>
+      <name>radar</name>
+      <uri>https://github.com/technoweenie</uri>
+    </author>
+    <link rel="alternate" href="http://edgeguides.spreecommerce.com/api/changes/2012-10-24-1-2-1-and-1-3-0-api-changes.html" />
+    <content type="html">&lt;p&gt;The API in Spree has had some minor changes in the 1.2.x release, as well as in the 1.3.0 release. They are listed below. Please ensure your API clients are updated accordingly.&lt;/p&gt;
+
+&lt;h2 id="standardize-variant-response"&gt;Standardize variant response&lt;/h2&gt;
+
+&lt;p&gt;Previously, variant data was returned like this:&lt;/p&gt;
+
+&lt;pre class="highlight"&gt;&lt;code class="language-javascript"&gt;[
+  {
+    "variant": {
+      "product_id": 1
+    }
+  }
+]&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But products were returned like this:&lt;/p&gt;
+
+&lt;pre class="highlight"&gt;&lt;code class="language-javascript"&gt;{
+  "products": [
+    {
+      "product": {
+        "id": 1
+      }
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To standardize these responses, variants will now be returned underneath a &lt;code&gt;variants&lt;/code&gt; key in the JSON response, like this:&lt;/p&gt;
+
+&lt;pre class="highlight"&gt;&lt;code class="language-javascript"&gt;{
+  "variants": [
+    {
+      "variant": {
+        "product_id": 1
+      }
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="standarize-payments-response"&gt;Standarize payments response&lt;/h2&gt;
+
+&lt;p&gt;Previously, payments data was returned like this:&lt;/p&gt;
+
+&lt;pre class="highlight"&gt;&lt;code class="language-javascript"&gt;[
+  {
+    "payment": {
+      "payment_method_id": 1
+    }
+  }
+]&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Similar to the previous point, this API will now return payments like this:&lt;/p&gt;
+
+&lt;pre class="highlight"&gt;&lt;code class="language-javascript"&gt;{
+  "payments": [
+    {
+      "payment": {
+        "payment_method_id": 1
+      }
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="deleted-variants"&gt;Deleted variants&lt;/h2&gt;
+
+&lt;p&gt;Deleted variants are no longer returned within requests to the variants API endpoint. Admins can view deleted variants by passing along a &lt;code&gt;show_deleted&lt;/code&gt; parameter which evaluates to a “truthy” value.&lt;/p&gt;
+
+&lt;h2 id="minor-changes"&gt;Minor changes&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A request to &lt;code&gt;POST /api/orders&lt;/code&gt; no longer needs to include parameters for a line item.&lt;/li&gt;
+  &lt;li&gt;Requests to &lt;code&gt;POST /api/orders&lt;/code&gt; now return status 201, not 200.&lt;/li&gt;
+  &lt;li&gt;All DELETE responses will now return status 204, not 200.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+</feed>

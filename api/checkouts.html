@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>Checkouts - Storefront API | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="description" content="Use the Spree Commerce storefront API to access Checkout data."/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="api">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">Checkouts - Storefront API</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <h1 id="checkouts-api">Checkouts API</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>The checkout API functionality can be used to advance an existing order’s state.
+Sending a <code>PUT</code> request to <code>/api/checkouts/:number</code> will advance an order’s
+state or, failing that, report any errors.</p>
+
+<p>The following sections will walk through creating a new order and advancing an order from its <code>cart</code> state to its <code>complete</code> state.</p>
+
+<h2 id="creating-a-blank-order">Creating a blank order</h2>
+
+<p>To create a new, empty order, make this request:</p>
+
+<pre><code>POST /api/orders.json
+</code></pre>
+
+<h3 id="response">Response</h3>
+
+<pre class="headers no-response"><code>Status: 201 Created</code></pre>
+
+<pre class="highlight"><code class="language-javascript">{
+  "id": 4,
+  "number": "R307128032",
+  "item_total": "0.0",
+  "total": "0.0",
+  "ship_total": "0.0",
+  "state": "cart",
+  "adjustment_total": "0.0",
+  "user_id": 1,
+  "created_at": "2014-07-06T18:52:33.724Z",
+  "updated_at": "2014-07-06T18:52:33.752Z",
+  "completed_at": null,
+  "payment_total": "0.0",
+  "shipment_state": null,
+  "payment_state": null,
+  "email": "spree@example.com",
+  "special_instructions": null,
+  "channel": "spree",
+  "included_tax_total": "0.0",
+  "additional_tax_total": "0.0",
+  "display_included_tax_total": "$0.00",
+  "display_additional_tax_total": "$0.00",
+  "tax_total": "0.0",
+  "currency": "USD",
+  "display_item_total": "$0.00",
+  "total_quantity": 0,
+  "display_total": "$0.00",
+  "display_ship_total": "$0.00",
+  "display_tax_total": "$0.00",
+  "token": "n0kZnXjRfjnhZMY5ijhiOA",
+  "checkout_steps": [
+    "address",
+    "delivery",
+    "complete"
+  ],
+  "permissions": {
+    "can_update": true
+  },
+  "bill_address": null,
+  "ship_address": null,
+  "line_items": [],
+  "payments": [],
+  "shipments": [],
+  "adjustments": []
+}
+</code></pre>
+
+<p>Any time you update the order or move a checkout step you’ll get
+a response similar as above along with the new associated objects. e.g. addresses,
+payments, shipments.</p>
+
+<h2 id="add-line-items-to-an-order">Add line items to an order</h2>
+
+<p>Pass line item attributes like this:</p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "line_item": {
+    "variant_id": 1,
+    "quantity": 5
+  }
+}
+</code></pre>
+
+<p>to this api endpoint:</p>
+
+<pre><code>POST /api/orders/:number/line_items.json
+</code></pre>
+
+<pre class="headers no-response"><code>Status: 201 Created</code></pre>
+
+<pre class="highlight"><code class="language-javascript">{
+  "id": 3,
+  "quantity": 5,
+  "price": "15.99",
+  "variant_id": 1,
+  "single_display_amount": "$15.99",
+  "display_amount": "$79.95",
+  "total": "79.95",
+  "variant": {
+    "id": 1,
+    "name": "Ruby on Rails Tote",
+    "sku": "ROR-00011",
+    "price": "15.99",
+    "weight": "0.0",
+    "height": null,
+    "width": null,
+    "depth": null,
+    "is_master": true,
+    "cost_price": "17.0",
+    "slug": "ruby-on-rails-tote",
+    "description": "Nihil et itaque adipisci sed ea dolorum.",
+    "track_inventory": true,
+    "display_price": "$15.99",
+    "options_text": "",
+    "in_stock": true,
+    "option_values": [],
+    "images": [
+      {
+        "id": 21,
+        "position": 1,
+        "attachment_content_type": "image/jpeg",
+        "attachment_file_name": "ror_tote.jpeg",
+        "type": "Spree::Image",
+        "attachment_updated_at": "2014-07-06T18:37:34.534Z",
+        "attachment_width": 360,
+        "attachment_height": 360,
+        "alt": null,
+        "viewable_type": "Spree::Variant",
+        "viewable_id": 1,
+        "mini_url": "/spree/products/21/mini/ror_tote.jpeg?1404671854",
+        "small_url": "/spree/products/21/small/ror_tote.jpeg?1404671854",
+        "product_url": "/spree/products/21/product/ror_tote.jpeg?1404671854",
+        "large_url": "/spree/products/21/large/ror_tote.jpeg?1404671854"
+      },
+      {
+        "id": 22,
+        "position": 2,
+        "attachment_content_type": "image/jpeg",
+        "attachment_file_name": "ror_tote_back.jpeg",
+        "type": "Spree::Image",
+        "attachment_updated_at": "2014-07-06T18:37:34.921Z",
+        "attachment_width": 360,
+        "attachment_height": 360,
+        "alt": null,
+        "viewable_type": "Spree::Variant",
+        "viewable_id": 1,
+        "mini_url": "/spree/products/22/mini/ror_tote_back.jpeg?1404671854",
+        "small_url": "/spree/products/22/small/ror_tote_back.jpeg?1404671854",
+        "product_url": "/spree/products/22/product/ror_tote_back.jpeg?1404671854",
+        "large_url": "/spree/products/22/large/ror_tote_back.jpeg?1404671854"
+      }
+    ],
+    "product_id": 1
+  },
+  "adjustments": []
+}
+</code></pre>
+
+<h2 id="updating-an-order">Updating an order</h2>
+
+<p>To update an order you must be authenticated as the order’s user, and perform a request like this:</p>
+
+<pre><code>PUT /api/orders/:number.json
+</code></pre>
+
+<p>If you know the order’s token, then you can also update the order:</p>
+
+<pre><code>PUT /api/orders/:number.json?order_token=abcdef123456
+</code></pre>
+
+<p>Requests performed as a non-admin or non-authorized user will be met with a 401 response from this action.</p>
+
+<h2 id="address">Address</h2>
+
+<p>To transition an order to its next step, make a request like this:</p>
+
+<pre><code>PUT /api/checkouts/:number/next.json
+</code></pre>
+
+<p>If the request is successfull you’ll get a 200 response using the same order
+template shown when creating the order with the state updated. See example of
+failed response below.</p>
+
+<h3 id="failed-response">Failed Response</h3>
+
+<pre class="headers"><code>Status: 422 Unprocessable Entity</code></pre>
+
+<pre class="highlight"><code class="language-javascript">{
+  "error": "The order could not be transitioned. Please fix the errors and try again.",
+  "errors": {
+    "email": [
+      "can't be blank"
+    ]
+  }
+}</code></pre>
+
+<h2 id="delivery">Delivery</h2>
+
+<p>To advance to the next state, <code>delivery</code>, the order will first need both a shipping and billing address.</p>
+
+<p>In order to update the addresses, make this request with the necessary parameters:</p>
+
+<pre><code>PUT /api/checkouts/:number.json
+</code></pre>
+
+<p>As an example, here are the required address attributes and how they should be formatted:</p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "order": {
+    "bill_address_attributes": {
+      "firstname": "John",
+      "lastname": "Doe",
+      "address1": "7735 Old Georgetown Road",
+      "city": "Bethesda",
+      "phone": "3014445002",
+      "zipcode": "20814",
+      "state_id": 48,
+      "country_id": 49
+    },
+    "ship_address_attributes": {
+      "firstname": "John",
+      "lastname": "Doe",
+      "address1": "7735 Old Georgetown Road",
+      "city": "Bethesda",
+      "phone": "3014445002",
+      "zipcode": "20814",
+      "state_id": 48,
+      "country_id": 49
+    }
+  }
+}</code></pre>
+
+<h3 id="response-1">Response</h3>
+
+<p>Once valid address information has been submitted, the shipments and shipping rates
+available for this order will be returned inside a <code>shipments</code> key inside the order,
+as seen below:</p>
+
+<pre class="headers"><code>Status: 200 OK</code></pre>
+
+<pre class="highlight"><code class="language-javascript">{
+  ...
+  "shipments": [
+    {
+      "id": 4,
+      "tracking": null,
+      "number": "H22035832422",
+      "cost": "15.0",
+      "shipped_at": null,
+      "state": "pending",
+      "order_id": "R181010551",
+      "stock_location_name": "default",
+      "shipping_rates": [
+        {
+          "id": 10,
+          "name": "UPS Ground (USD)",
+          "cost": "5.0",
+          "selected": false,
+          "shipping_method_id": 1,
+          "display_cost": "$5.00"
+        },
+        {
+          "id": 11,
+          "name": "UPS Two Day (USD)",
+          "cost": "10.0",
+          "selected": false,
+          "shipping_method_id": 2,
+          "display_cost": "$10.00"
+        },
+        {
+          "id": 12,
+          "name": "UPS One Day (USD)",
+          "cost": "15.0",
+          "selected": true,
+          "shipping_method_id": 3,
+          "display_cost": "$15.00"
+        }
+      ],
+      "selected_shipping_rate": {
+        "id": 12,
+        "name": "UPS One Day (USD)",
+        "cost": "15.0",
+        "selected": true,
+        "shipping_method_id": 3,
+        "display_cost": "$15.00"
+      },
+      "shipping_methods": [
+        {
+          "id": 1,
+          "name": "UPS Ground (USD)",
+          "zones": [
+            {
+              "id": 2,
+              "name": "North America",
+              "description": "USA + Canada"
+            }
+          ],
+          "shipping_categories": [
+            {
+              "id": 1,
+              "name": "Default"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "UPS Two Day (USD)",
+          "zones": [
+            {
+              "id": 2,
+              "name": "North America",
+              "description": "USA + Canada"
+            }
+          ],
+          "shipping_categories": [
+            {
+              "id": 1,
+              "name": "Default"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "UPS One Day (USD)",
+          "zones": [
+            {
+              "id": 2,
+              "name": "North America",
+              "description": "USA + Canada"
+            }
+          ],
+          "shipping_categories": [
+            {
+              "id": 1,
+              "name": "Default"
+            }
+          ]
+        }
+      ],
+      "manifest": [
+        {
+          "quantity": 3,
+          "states": {
+            "on_hand": 3
+          },
+          "variant_id": 1
+        }
+      ]
+    }
+  ],
+  ...
+</code></pre>
+
+<h2 id="payment">Payment</h2>
+
+<p>To advance to the next state, <code>payment</code>, you will need to select a shipping rate
+for each shipment for the order. These were returned when transitioning to the
+<code>delivery</code> step. If you need want to see them again, make the following request:</p>
+
+<pre><code>GET /api/orders/:number.json
+</code></pre>
+
+<p>Spree will select a shipping rate by default so you can advance to the <code>payment</code>
+state by making this request:</p>
+
+<pre><code>PUT /api/checkouts/:number/next.json
+</code></pre>
+
+<p>If the order doesn’t have an assigned shipping rate, or you want to choose a different
+shipping rate make the following request to select one and advance the order’s state:</p>
+
+<pre><code>PUT /api/checkouts/:number.json
+</code></pre>
+
+<p>With parameters such as these:</p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "order": {
+    "shipments_attributes": [
+      {
+        "selected_shipping_rate_id": 1,
+        "id": 1
+      }
+    ]
+  }
+}</code></pre>
+
+<div class="note"><p>Please ensure you select a shipping rate for each shipment in the order. In the request
+above, the <code>selected_shipping_rate_id</code> should be the id of the shipping rate you want to
+use and the <code>id</code> should be the id of the shipment you are choosing this shipping rate for.</p>
+</div>
+
+<h2 id="confirm">Confirm</h2>
+
+<p>To advance to the next state, <code>confirm</code>, the order will need to have a payment.
+You can create a payment by passing in parameters such as this:</p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "order": {
+    "payments_attributes": [
+      {
+        "payment_method_id": "1"
+      }
+    ]
+  },
+  "payment_source": {
+    "1": {
+      "number": "4111111111111111",
+      "month": "1",
+      "year": "2017",
+      "verification_value": "123",
+      "name": "John Smith"
+    }
+  }
+}</code></pre>
+
+<div class="note"><p>The numbered key in the <code>payment_source</code> hash directly corresponds to the
+<code>payment_method_id</code> attribute within the <code>payment_attributes</code> key. </p>
+</div>
+
+<p>You can also use an existing card for the order by submitting the credit card
+id. See an example request:</p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "order": {
+    "existing_card": "1"
+  }
+}</code></pre>
+
+<p><em>Please note that for 2-2-stable checkout api the request body to submit a payment
+via api/checkouts is slight different. See example:</em></p>
+
+<pre class="highlight"><code class="language-javascript">{
+  "order": {
+    "payments_attributes": {
+      "payment_method_id": "1"
+    },
+    "payment_source": {
+      "1": {
+        "number": "4111111111111111",
+        "month": "1",
+        "year": "2017",
+        "verification_value": "123",
+        "name": "John Smith"
+      }
+    }
+  }
+}</code></pre>
+
+<p>If the order already has a payment, you can advance it to the <code>confirm</code> state by making this request:</p>
+
+<pre><code>PUT /api/checkouts/:number.json
+</code></pre>
+
+<p>For more information on payments, view the <a href="payments.html">payments documentation</a>.</p>
+
+<h3 id="response-2">Response</h3>
+
+<pre class="headers"><code>Status: 200 OK</code></pre>
+
+<pre class="highlight"><code class="language-javascript">{
+  ...
+  "state": "confirm",
+  ...
+  "payments": [
+    {
+      "id": 3,
+      "source_type": "Spree::CreditCard",
+      "source_id": 2,
+      "amount": "65.37",
+      "display_amount": "$65.37",
+      "payment_method_id": 1,
+      "response_code": null,
+      "state": "checkout",
+      "avs_response": null,
+      "created_at": "2014-07-06T19:55:08.308Z",
+      "updated_at": "2014-07-06T19:55:08.308Z",
+      "payment_method": {
+        "id": 1,
+        "name": "Credit Card",
+        "environment": "development"
+      },
+      "source": {
+        "id": 2,
+        "month": "1",
+        "year": "2017",
+        "cc_type": null,
+        "last_digits": "1111",
+        "name": "John Smith"
+      }
+    }
+  ],
+  ...
+</code></pre>
+
+<h2 id="complete">Complete</h2>
+
+<p>Now the order is ready to be advanced to the final state, <code>complete</code>. To accomplish this, make this request:</p>
+
+<pre><code>PUT /api/checkouts/:number.json
+</code></pre>
+
+<p>You should get a 200 response with all the order info.</p>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class="js-topic">
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='summary.html'>Summary</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='summary.html#overview'>Overview</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='summary.html#rules'>Rules</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='summary.html#customizing-responses'>Customizing</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='products.html'>Products</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#new'>New</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='products.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='product_properties.html'>Product Properties</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='product_properties.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='variants.html'>Variants</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#new'>New</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='variants.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='orders.html'>Orders</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#show-delivery'>Show (delivery)</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#update-address'>Address</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='orders.html#empty'>Empty</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='line_items.html'>Line Items</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='line_items.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='line_items.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='line_items.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='checkouts.html'>Checkouts</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#introduction'>Introduction</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#creating-a-blank-order'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#add-line-items-to-an-order'>Line Items</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#updating-an-order'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#address'>Address</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#delivery'>Delivery</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#payment'>Payment</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#confirm'>Confirm</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='checkouts.html#complete'>Complete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='payments.html'>Payments</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#new'>New</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#authorize'>Authorize</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#capture'>Capture</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#purchase'>Purchase</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#void'>Void</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='payments.html#credit'>Credit</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='return_authorizations.html'>Return Authorizations</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='return_authorizations.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='shipments.html'>Shipments</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#ready'>Ready</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#ship'>Ship</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#add-variant'>Add Variant</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='shipments.html#remove-variant'>Remove Variant</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='taxonomies.html'>Taxonomies</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#delete'>Delete</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#list-taxons'>Taxon Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#a-single-taxon'>Taxon Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#taxon-create'>Taxon Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#taxon-update'>Taxon Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='taxonomies.html#taxon-delete'>Taxon Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='addresses.html'>Addresses</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='addresses.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='addresses.html#update'>Update</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='countries.html'>Countries</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='countries.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='countries.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='countries.html#show'>Show</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='stock_locations.html'>Stock Locations</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_locations.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='stock_items.html'>Stock Items</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_items.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='stock_movements.html'>Stock Movements</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='stock_movements.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed"><i class="icon-right-open"></i></a>
+          <a href='zones.html'>Zones</a>
+        </h3>
+        <ul class="js-guides">
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#index'>Index</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#search'>Search</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#show'>Show</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#create'>Create</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#update'>Update</a>
+          </li>
+          <li>
+            <i class="icon-dot"></i>
+            <a href='zones.html#delete'>Delete</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

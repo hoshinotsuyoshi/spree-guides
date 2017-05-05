@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>Logic Customization - Developer Guide | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="customization" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="developer">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">Logic Customization - Developer Guide | Spree Commerce</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container" id="main">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <p>This guide explains how to customize the internal Spree code to meet
+your exact business requirements including:</p>
+
+<ul>
+  <li>Extending and overriding existing Spree models and controllers</li>
+  <li>Changing the output from an existing Spree controller action</li>
+  <li>Customizing the image handling functionality.</li>
+</ul>
+
+<h3 id="extending-classes">Extending Classes</h3>
+
+<p>All of Spree’s business logic (models, controllers, helpers, etc) can
+easily be extended / overridden to meet your exact requirements using
+standard Ruby idioms.</p>
+
+<p>Standard practice for including such changes in your application or
+extension is to create a file within the relevant <strong>app/models/spree</strong> or
+<strong>app/controllers/spree</strong> directory with the original class name with
+<strong>_decorator</strong> appended.</p>
+
+<p><strong>Adding a custom method to the Product model:</strong>
+app/models/spree/product_decorator.rb</p>
+
+<pre><code>Spree::Product.class_eval do
+  def some_method
+    ...
+  end
+end
+</code></pre>
+
+<p><strong>Adding a custom action to the ProductsController:</strong>
+app/controllers/spree/products_controller_decorator.rb</p>
+
+<pre><code>Spree::ProductsController.class_eval do
+  def some_action
+    ...
+  end
+end
+</code></pre>
+
+<div class="note"><p>The exact same format can be used to redefine an existing method.</p>
+</div>
+
+<h4 id="accessing-product-data">Accessing Product Data</h4>
+
+<p>If you extend the Products controller with a new method, you may very
+well want to access product data in that method. You can do so by using
+the :load_data before_filter.</p>
+
+<pre><code>Spree::ProductsController.class_eval do
+  before_filter :load_data, :only =&gt; :some_action
+
+  def some_action
+    ...
+  end
+end
+</code></pre>
+
+<div class="note"><p>:load_data will use params[:id] to lookup the product by its
+permalink.</p>
+</div>
+
+<h3 id="overriding-controller-action-responses">Overriding Controller Action Responses</h3>
+
+<p>With the release of 0.60.0 Spree now supports a new way of overriding or
+changing the output of an existing controller’s action without needing
+to completely override the method (while also easily avoiding double
+render exceptions).</p>
+
+<h4 id="respondoverride-method">respond_override method</h4>
+
+<p>The <strong>respond_override</strong> method is used to customize the response from
+any action, and is built on top of Rails 3’s <strong>respond_with</strong> method
+(that all Spree controllers are now using). It accepts a hash of options
+using the following syntax:</p>
+
+<pre><code>respond_override :action_name =&gt; { :format =&gt;  { :result =&gt; lambda { ... response ... } } }
+</code></pre>
+
+<ul>
+  <li><strong>:action_name</strong> - Can be any existing action within a controller
+(i.e. :update, :create, :new), provided that action is using
+respond_with to define its response.</li>
+  <li><strong>:format</strong> - The format of the request, (i.e. :html, :json, :js,
+etc). All Spree controllers have a class level <strong>respond_to</strong>
+method call that defines which formats the controller’s actions will
+respond to.</li>
+  <li><strong>:result</strong> - Two possible results are available on any given
+response, :success or :failure. :success being the default for most
+actions. However, actions that change or create models will have a
+:failure response if validation fails for the model being updated.</li>
+  <li><strong>lambda</strong> - The lambda passed contains the actual code to create
+the desired custom response (i.e. render or redirect_to). A lambda
+must be passed to ensure the code is evaluated at the correct time.</li>
+</ul>
+
+<h4 id="example-usage">Example Usage</h4>
+
+<p>If you wanted to render a custom partial for the index action of
+ProductsController, you could include the following in your
+<strong>app/controllers/spree/products_controller_decorator.rb</strong> file.</p>
+
+<pre><code>Spree::ProductsController.class_eval do
+  respond_override :index =&gt; { :html =&gt;
+    { :success =&gt; lambda { render 'shared/some_file' } } }
+end
+</code></pre>
+
+<p>Or if you wanted to redirect on the failure to create in
+Admin::ProductsController, you would use:</p>
+
+<pre><code>Spree::Admin::ProductsController.class_eval do
+  respond_override :create =&gt; { :html =&gt; { :failure =&gt; lambda {
+    redirect_to some_url } } }
+end
+</code></pre>
+
+<h4 id="caveats">Caveats</h4>
+
+<ul>
+  <li>If an action does not use <strong>respond_with</strong> to define its response
+the <strong>respond_override</strong> will not work.</li>
+  <li>Some actions contain several <strong>respond_with</strong> calls so any
+<strong>respond_override</strong> defined on it will be executed for any of the
+<strong>respond_with</strong> instances, so it’s important to check the model
+state / logic within the lambda passed to prevent overriding all
+possible responses with the same override.</li>
+</ul>
+
+<h3 id="product-images">Product Images</h3>
+
+<p>Spree uses Thoughtbot’s
+<a href="https://github.com/thoughtbot/paperclip">paperclip</a> gem to manage
+images for products. All the normal paperclip options are available on
+the Image class. If you want to modify the default Spree product and
+thumbnail image sizes, simply create an image_decorator.rb file in your
+app model directory, and override the attachment sizes:</p>
+
+<pre><code>Spree::Image.class_eval do
+  attachment_definitions[:attachment][:styles] = {
+    :mini =&gt; '48x48&gt;', # thumbs under image
+    :small =&gt; '100x100&gt;', # images on category view
+    :product =&gt; '240x240&gt;', # full product image
+    :large =&gt; '600x600&gt;' # light box image
+  }
+end
+</code></pre>
+
+<p>You may also add additional image sizes for use in your templates
+(:micro for shopping cart view, for example).</p>
+
+<h4 id="image-resizing-option-syntax">Image resizing option syntax</h4>
+
+<p>Default behavior is to resize the image and maintain aspect ratio (i.e.
+the :product version of a 480x400 image will be 240x200). Some commonly
+used options are:</p>
+
+<ul>
+  <li>trailing #, image will be centrally cropped, ensuring the requested
+dimensions</li>
+  <li>trailing &gt;, image will only be modified if it is currently larger
+than the requested dimensions. (i.e. the :small thumb for a 100x100
+original image will be unchanged)</li>
+</ul>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-tutorial-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/getting_started_tutorial.html'>Tutorials</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/getting_started_tutorial.html'>Getting Started</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/extensions_tutorial.html'>Extensions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deface_overrides_tutorial.html'>Deface Overrides</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-source-code-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/about.html'>Source Code</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/about.html'>About</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/navigating.html'>Navigating</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/getting_help.html'>Getting Help</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/contributing.html'>Contributing</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-core-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/addresses.html'>The Core</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/addresses.html'>Addresses</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/adjustments.html'>Adjustments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/calculators.html'>Calculators</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/inventory.html'>Inventory</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/payments.html'>Payments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/preferences.html'>Preferences</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/products.html'>Products</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/promotions.html'>Promotions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/orders.html'>Orders</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/shipments.html'>Shipments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/taxation.html'>Taxation</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-customization-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/authentication.html'>Customization</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/authentication.html'>Authentication</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/i18n.html'>Internationalization (i18n)</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/view.html'>View</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/asset.html'>Asset</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/logic.html'>Logic</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/s3_storage.html'>Use S3</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/checkout.html'>Checkout</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-deployment-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/deployment-service.html'>Deployment</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/ninefold.html'>Ninefold</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/heroku.html'>Heroku</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/ansible-ubuntu.html'>Ansible Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/manual-ubuntu.html'>Manual Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_options.html'>Deployment Options</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment-service.html'>Deployment Service</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_tips.html'>Deployment Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/requesting_and_configuring_ssl.html'>Requesting/Configuring SSL</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/seo.html'>Advanced Topics</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/seo.html'>Search Engine Optimization</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/developer_tips.html'>Developer Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/migration.html'>Migrating to Spree</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/security.html'>Security</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/testing.html'>Testing Spree Applications</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/upgrades/index.html'>Upgrade Guides</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-sixty-to-point-seventy.html'>0.60.x to 0.70.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-seventy-to-one-dot-oh.html'>0.70.x to 1.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-oh-to-one-dot-one.html'>1.0.x to 1.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-one-to-one-dot-two.html'>1.1.x to 1.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-two-to-one-dot-three.html'>1.2.x to 1.3.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-three-to-two-dot-oh.html'>1.3.x to 2.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-oh-to-two-dot-one.html'>2.0.x to 2.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-one-to-two-dot-two.html'>2.1.x to 2.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-two-to-two-dot-three.html'>2.2.x to 2.3.x</a> <div 
+          class="toc"></div></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>

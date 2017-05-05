@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html class="ie9"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="en" > <!--<![endif]-->
+<head>
+  <title>View Customization - Developer Guide | Spree Commerce</title>
+
+  <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="section" content="customization" />
+
+<link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<link href="/shared/css/icons.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/shared/css/icons-codes.css" media="screen" rel="stylesheet" type="text/css">
+
+<!--[if IE 7]>
+  <link href="/shared/css/icons-ie7.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/shared/css/icons-ie7-codes.css" media="screen" rel="stylesheet" type="text/css">
+<![endif]-->
+
+<link href="/shared/css/skeleton.css" media="screen" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<link href="/shared/css/documentation.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="/assets/stylesheets/guides.css" media="screen" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.1.1/jquery-migrate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="/assets/javascripts/css_browser_selector_dev.js" type="text/javascript"></script>
+<script src="/assets/javascripts/jquery.toc.js" type="text/javascript"></script>
+<!-- <script src="/assets/javascripts/waypoints.js" type="text/javascript"></script>
+<script src="/assets/javascripts/waypoints-sticky.js" type="text/javascript"></script> -->
+<script src="/assets/javascripts/documentation.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){
+  $.ajax({
+    url: document.location.protocol + '//munchkin.marketo.net/munchkin.js',
+    dataType: 'script',
+    cache: true,
+    success: function() { Munchkin.init('893-PDJ-826'); }
+  });
+});
+</script>
+<script type="text/javascript" src="//use.typekit.net/tcx0cap.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+
+</head>
+<body class="developer">
+  
+  <header id="header">
+    <div id="top-header">
+      <div class="container">
+
+        <div class="row">
+
+          <div class="five columns">
+            <a class="logo" href="http://spreecommerce.com"><img src='/images/logo.png' /></a>
+          </div>
+
+          <nav id="main-menu" class="eleven columns">
+  <ul class="inline">
+    <li><a href="../">Home</a></li>
+    <li><a href="../user/">User</a></li>
+    <li><a href="../developer/">Developer</a></li>
+    <li><a href="http://spreecommerce.com/docs/hub/" target="_blank">Hub</a></li>
+    <li><a href="../api/">API</a></li>
+    <li><a href="../release_notes/">Release Notes</a></li>
+  </ul>
+</nav>
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div id="subheader">
+      <div class="container">
+        <div class="twelve columns">
+          <h1 class="page-title">View Customization - Developer Guide | Spree Commerce</h1>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <div class="container" id="main">
+    <section id="main-content">
+
+      <div class="twelve columns">
+        <div id="content">
+          <h3 id="overview">Overview</h3>
+<p>View customization allows you to extend or replace any view within a
+Spree store. This guide explains the options available, including:</p>
+
+<ul>
+  <li>Using Deface for view customization</li>
+  <li>Replacing entire view templates</li>
+</ul>
+
+<h3 id="using-deface">Using Deface</h3>
+
+<p>Deface is a standalone Rails library that enables you to customize Erb
+templates without needing to directly edit the underlying view file.
+Deface allows you to use standard CSS3 style selectors to target any
+element (including Ruby blocks), and perform an action against all the
+matching elements.</p>
+
+<p>For example, take the Checkout Registration template, which looks like
+this:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">spree/shared/error_messages</span><span class="delimiter">'</span></span>, <span class="symbol">:target</span> =&gt; user <span class="inline-delimiter">%&gt;</span></span>
+<span class="tag">&lt;h2&gt;</span><span class="inline"><span class="inline-delimiter">&lt;%=</span> <span class="constant">Spree</span>.t(<span class="symbol">:registration</span>) <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;/h2&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">registration</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">account</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">columns alpha eight</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- TODO: add partial with registration form --&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">if</span> <span class="constant">Spree</span>::<span class="constant">Config</span>[<span class="symbol">:allow_guest_checkout</span>] <span class="inline-delimiter">%&gt;</span></span>
+    <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">guest_checkout</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">columns omega eight</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+      <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">spree/shared/error_messages</span><span class="delimiter">'</span></span>, <span class="symbol">:target</span> =&gt; order <span class="inline-delimiter">%&gt;</span></span>
+
+      <span class="tag">&lt;h2&gt;</span><span class="inline"><span class="inline-delimiter">&lt;%=</span> <span class="constant">Spree</span>.t(<span class="symbol">:guest_user_account</span>) <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;/h2&gt;</span>
+
+      <span class="inline"><span class="inline-delimiter">&lt;%=</span> form_for order, <span class="symbol">:url</span> =&gt; update_checkout_registration_path, <span class="symbol">:method</span> =&gt; <span class="symbol">:put</span>, <span class="symbol">:html</span> =&gt; { <span class="symbol">:id</span> =&gt; <span class="string"><span class="delimiter">'</span><span class="content">checkout_form_registration</span><span class="delimiter">'</span></span> } <span class="keyword">do</span> |f| <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;p&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> f.label <span class="symbol">:email</span>, <span class="constant">Spree</span>.t(<span class="symbol">:email</span>) <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;br</span> <span class="tag">/&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> f.email_field <span class="symbol">:email</span>, <span class="symbol">:class</span> =&gt; <span class="string"><span class="delimiter">'</span><span class="content">title</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;p&gt;</span><span class="inline"><span class="inline-delimiter">&lt;%=</span> f.submit <span class="constant">Spree</span>.t(<span class="symbol">:continue</span>), <span class="symbol">:class</span> =&gt; <span class="string"><span class="delimiter">'</span><span class="content">button primary</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;/p&gt;</span>
+      <span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">end</span> <span class="inline-delimiter">%&gt;</span></span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">end</span> <span class="inline-delimiter">%&gt;</span></span>
+<span class="tag">&lt;/div&gt;</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>If you wanted to insert some code just before the +#registration+ div on the page you would define an override as follows:</p>
+
+<pre><code>Deface::Override.new(:virtual_path  =&gt; "spree/checkout/registration",
+                     :insert_before =&gt; "div#registration",
+                     :text          =&gt; "&lt;p&gt;Registration is the future!&lt;/p&gt;",
+                     :name          =&gt; "registration_future")
+</code></pre>
+
+<p>This override <strong>inserts</strong> <code>&lt;p&gt;Registration is the future!&lt;/p&gt;</code> <strong>before</strong> the div with the id of “registration”.</p>
+
+<h4 id="available-actions">Available actions</h4>
+
+<p>Deface applies an <strong>action</strong> to element(s) matching the supplied CSS selector. These actions are passed when defining a new override are supplied as the key while the CSS selector for the target element(s) is the value, for example:</p>
+
+<p>:remove =&gt; “p.junk”</p>
+
+<p>:insert_after =&gt; “div#wow p.header”</p>
+
+<p>:insert_bottom =&gt; “ul#giant-list”</p>
+
+<p>Deface currently supports the following actions:</p>
+
+<ul>
+  <li><tt>:remove</tt> - Removes all elements that match the supplied selector</li>
+  <li><tt>:replace</tt> - Replaces all elements that match the supplied selector, with the content supplied</li>
+  <li><tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector</li>
+  <li><tt>:surround</tt> - Surrounds all elements that match the supplied selector, expects replacement markup to contain &lt;%= render_original %&gt; placeholder</li>
+  <li><tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector, expects replacement markup to contain &lt;%= render_original %&gt; placeholder</li>
+  <li><tt>:insert_after</tt> - Inserts after all elements that match the supplied selector</li>
+  <li><tt>:insert_before</tt> - Inserts before all elements that match the supplied selector</li>
+  <li><tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, as the first child</li>
+  <li><tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, as the last child</li>
+  <li><tt>:set_attributes</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.</li>
+  <li><tt>:add_to_attributes</tt> - Appends value to attributes on all elements that match the supplied selector, adds attribute if not present. Expects :attributes option to be passed.</li>
+  <li><tt>:remove_from_attributes</tt> - Removes value from attributes on all elements that match the supplied selector. Expects :attributes option to be passed.</li>
+</ul>
+
+<div class="note"><p>Not all actions are applicable to all elements. For example, <tt>:insert_top</tt> and <tt>:insert_bottom</tt> expects a parent element with children.</p>
+</div>
+
+<h4 id="supplying-content">Supplying content</h4>
+
+<p>Deface supports three options for supplying content to be used by an override:</p>
+
+<ul>
+  <li><tt>:text</tt> - String containing markup</li>
+  <li><tt>:partial</tt> - Relative path to a partial</li>
+  <li><tt>:template</tt> - Relative path to a template</li>
+</ul>
+
+<div class="note"><p>As Deface operates on the Erb source the content supplied to an override can include Erb, it is not limited to just HTML. You also have access to all variables accessible in the original Erb context.</p>
+</div>
+
+<h4 id="targeting-elements">Targeting elements</h4>
+
+<p>While Deface allows you to use a large subset of CSS3 style selectors (as provided by Nokogiri), the majority of Spree’s views have been updated to include a custom HTML attribute (<tt>data-hook</tt>), which is designed to provide consistent targets for your overrides to use.</p>
+
+<p>As Spree views are changed over coming versions, the original HTML elements maybe edited or be removed. We will endeavour to ensure that data-hook / id combination will remain consistent within any single view file (where possible), thus making your overrides more robust and upgrade proof.</p>
+
+<p>For example, spree/products/show.html.erb looks as follows:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="tag">&lt;div</span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_show</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">itemscope</span> <span class="attribute-name">itemtype</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://schema.org/Product</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="inline"><span class="inline-delimiter">&lt;%</span> body_id = <span class="string"><span class="delimiter">'</span><span class="content">product-details </span></span><span class="inline-delimiter">%&gt;</span></span>
+  <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">columns six alpha</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_left_part</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">row</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_left_part_wrap</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product-images</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_images</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">main-image</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span><span class="tag">&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">image</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">thumbnails</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span><span class="tag">&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">thumbnails</span><span class="delimiter">'</span></span>, <span class="symbol">:product</span> =&gt; product <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+
+      <span class="tag">&lt;div</span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_properties</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">properties</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span>
+      <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">columns ten omega</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_right_part</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">row</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_right_part_wrap</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+      <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product-description</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product_description</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+
+        <span class="tag">&lt;h1</span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">product-title</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">itemprop</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span><span class="inline"><span class="inline-delimiter">&lt;%=</span> accurate_title <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;/h1&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attribute-name">itemprop</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> product_description(product) <span class="keyword">rescue</span> <span class="constant">Spree</span>.t(<span class="symbol">:product_has_no_description</span>) <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cart-form</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">data-hook</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cart_form</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+          <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">cart_form</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span>
+        <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+
+      <span class="inline"><span class="inline-delimiter">&lt;%=</span> render <span class="string"><span class="delimiter">'</span><span class="content">taxons</span><span class="delimiter">'</span></span> <span class="inline-delimiter">%&gt;</span></span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>As you can see from the example above the <code>data-hook</code> can be present in
+a number of ways:</p>
+
+<ul>
+  <li>On elements with <strong>no</strong> <code>id</code> attribute the <code>data-hook</code> attribute
+contains a value similar to what would be included in the <code>id</code>
+attribute.</li>
+  <li>On elements with an <code>id</code> attribute the <code>data-hook</code> attribute does
+<strong>not</strong> normally contain a value.</li>
+  <li>Occasionally on elements with an <code>id</code> attribute the <code>data-hook</code> will
+contain a value different from the elements id. This is generally to
+support migration from the old 0.60.x style of hooks, where the old
+hook names were converted into <code>data-hook</code> versions.</li>
+</ul>
+
+<p>The suggested way to target an element is to use the <code>data-hook</code>
+attribute wherever possible. Here are a few examples based on
+<strong>products/show.html.erb</strong> above:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="symbol">:replace</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">[data-hook='product_show']</span><span class="delimiter">&quot;</span></span>
+
+<span class="symbol">:insert_top</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">#thumbnails[data-hook]</span><span class="delimiter">&quot;</span></span>
+
+<span class="symbol">:remove</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">[data-hook='cart_form']</span><span class="delimiter">&quot;</span></span>
+
+</pre></div>
+</div>
+</div>
+
+<p>You can also use a combination of both styles of selectors in a single
+override to ensure maximum protection against changes:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre> <span class="symbol">:insert_top</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">[data-hook='thumbnails'], #thumbnails[data-hook]</span><span class="delimiter">&quot;</span></span>
+ 
+</pre></div>
+</div>
+</div>
+
+<h4 id="targeting-ruby-blocks">Targeting ruby blocks</h4>
+
+<p>Deface evaluates all the selectors passed against the original erb view
+contents (and importantly not against the finished / generated HTML). In
+order for Deface to make ruby blocks contained in a view parseable they
+are converted into a pseudo markup as follows.</p>
+
+<div class="note"><p>Version 1.0 of Deface, used in Spree 2.1, changed the code tag syntax.
+Formerly code tags were parsed as <code>&lt;code erb-loud&gt;</code> and <code>&lt;code
+erb-silent&gt;</code>.  They are now parsed as <code>&lt;erb loud&gt;</code> and <code>&lt;erb silent&gt;</code>.
+Deface overrides which used selectors like <code>code[erb-loud]</code> should now
+use <code>erb[loud]</code>.</p>
+</div>
+
+<p>Given the following Erb file:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">if</span> products.empty? <span class="inline-delimiter">%&gt;</span></span>
+ <span class="inline"><span class="inline-delimiter">&lt;%=</span> <span class="constant">Spree</span>.t(<span class="symbol">:no_products_found</span>) <span class="inline-delimiter">%&gt;</span></span>
+<span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">elsif</span> params.key?(<span class="symbol">:keywords</span>) <span class="inline-delimiter">%&gt;</span></span>
+  <span class="tag">&lt;h3&gt;</span><span class="inline"><span class="inline-delimiter">&lt;%=</span> <span class="constant">Spree</span>.t(<span class="symbol">:products</span>) <span class="inline-delimiter">%&gt;</span></span><span class="tag">&lt;/h3&gt;</span>
+<span class="inline"><span class="inline-delimiter">&lt;%</span> <span class="keyword">end</span> <span class="inline-delimiter">%&gt;</span></span>
+
+</pre></div>
+</div>
+</div>
+
+<p>Would be seen by Deface as:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre><span class="tag">&lt;html&gt;</span>
+  <span class="tag">&lt;erb</span><span class="error">[</span><span class="attribute-name">silent</span><span class="error">]</span><span class="tag">&gt;</span> if products.empty? <span class="tag">&lt;/erb&gt;</span>
+  <span class="tag">&lt;erb</span><span class="error">[</span><span class="attribute-name">loud</span><span class="error">]</span><span class="tag">&gt;</span> Spree.t(:no_products_found) <span class="tag">&lt;/erb&gt;</span>
+  <span class="tag">&lt;erb</span><span class="error">[</span><span class="attribute-name">silent</span><span class="error">]</span><span class="tag">&gt;</span> elsif params.key?(:keywords) <span class="tag">&lt;/erb&gt;</span>
+
+  <span class="tag">&lt;h3&gt;</span><span class="tag">&lt;erb</span><span class="error">[</span><span class="attribute-name">loud</span><span class="error">]</span><span class="tag">&gt;</span> Spree.t(:products) <span class="tag">&lt;/erb&gt;</span><span class="tag">&lt;/h3&gt;</span>
+
+  <span class="tag">&lt;erb</span><span class="error">[</span><span class="attribute-name">silent</span><span class="error">]</span><span class="tag">&gt;</span> end <span class="tag">&lt;/erb&gt;</span>
+<span class="tag">&lt;/html&gt;</span>
+
+</pre></div>
+</div>
+</div>
+
+<p>So you can target ruby code blocks with the same standard CSS3 style
+selectors, for example:</p>
+
+<div><div class="CodeRay">
+  <div class="code"><pre> <span class="symbol">:replace</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">erb[loud]:contains('t(:products)')</span><span class="delimiter">&quot;</span></span>
+
+<span class="symbol">:insert_before</span> =&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">erb[silent]:contains('elsif')</span><span class="delimiter">&quot;</span></span>
+
+</pre></div>
+</div>
+</div>
+
+<h4 id="view-upgrade-protection">View upgrade protection</h4>
+
+<p>To ensure upgrading between versions of Spree is as painless as
+possible, Deface supports an <code>:original</code> option that can contain a
+string of the original content that’s being replaced. When Deface is
+applying the override it will ensure that the current source matches the
+value supplied and will output to the Rails application log if they are
+different.</p>
+
+<p>These warnings are a good indicator that you need to review the source
+and ensure your replacement is adequately replacing all the
+functionality provided by Spree. This will help reduce unexpected issues
+after upgrades.</p>
+
+<p>Once you’ve reviewed the new source you can update the <code>:original</code> value
+to new source to clear the warning.</p>
+
+<div class="note"><p>Deface removes all whitespace from both the actual and <code>:original</code>
+source values before comparing, to reduce false warnings caused by basic
+whitespace differences.</p>
+</div>
+
+<h4 id="organizing-overrides">Organizing Overrides</h4>
+
+<p>The suggested method for organizing your overrides is to create a
+separate file for each override inside the <strong>app/overrides</strong> directory,
+naming each file the same as the <strong>:name</strong> specified within.</p>
+
+<div class="note"><p>Using this method will ensure your overrides are compatible with
+future theming developments (editor).</p>
+</div>
+
+<h4 id="more-information-on-deface">More information on Deface</h4>
+
+<p>For more information and sample overrides please refer to its
+<a href="https://github.com/railsdog/deface">README</a> file on GitHub.</p>
+
+<p>You can also see how Deface internals work, and test selectors using the
+<a href="http://deface.heroku.com">Deface Test Harness</a> application.</p>
+
+<h3 id="template-replacements">Template Replacements</h3>
+
+<p>Sometimes the customization required to a view are so substantial that
+using a Deface override seems impractical. Spree also supports the
+duplication of views within an application or extension that will
+completely replace the file of the same name in Spree.</p>
+
+<p>To override any of Spree’s default views including those for the admin
+interface, simply create a file with the same filename in your app/views
+directory.</p>
+
+<p>For example, to override the main layout, create the file
+YOUR_SITE_OR_EXTENSION/app/views/spree/layouts/spree_application.html.erb</p>
+
+<div class="note"><p>It’s important to ensure you copy the correct version of a view
+into your application or extension, as copying a mismatched version
+could lead to hard to debug issues. We suggest using <code>bundle show spree</code>
+to get the location of the Spree code you’re actually running and then
+copying the relevant file from there.</p>
+</div>
+
+<h4 id="drawbacks-of-template-replacements">Drawbacks of template replacements</h4>
+
+<p>Whenever you copy an entire view into your extension or application you
+are adding a significant maintenance overhead to your application when
+it comes to upgrading to newer versions of Spree. When upgrading between
+versions you need to compare each template that’s been replaced to
+ensure to replicate any changes from the newer Spree version in your
+locally copied version.</p>
+
+<p>To this end we strongly suggest you use Deface to achieve the desired
+customizations wherever possible.</p>
+
+        </div>
+      </div>
+
+    </section>
+
+    <aside id="sidebar" class="four columns">
+  <nav id="sidebar-menu">
+    <ul>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-tutorial-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/getting_started_tutorial.html'>Tutorials</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/getting_started_tutorial.html'>Getting Started</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/extensions_tutorial.html'>Extensions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deface_overrides_tutorial.html'>Deface Overrides</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-source-code-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/about.html'>Source Code</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/about.html'>About</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/navigating.html'>Navigating</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/getting_help.html'>Getting Help</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/contributing.html'>Contributing</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-core-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/addresses.html'>The Core</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/addresses.html'>Addresses</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/adjustments.html'>Adjustments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/calculators.html'>Calculators</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/inventory.html'>Inventory</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/payments.html'>Payments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/preferences.html'>Preferences</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/products.html'>Products</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/promotions.html'>Promotions</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/orders.html'>Orders</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/shipments.html'>Shipments</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/taxation.html'>Taxation</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-customization-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/authentication.html'>Customization</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/authentication.html'>Authentication</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/i18n.html'>Internationalization (i18n)</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/view.html'>View</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/asset.html'>Asset</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/logic.html'>Logic</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/s3_storage.html'>Use S3</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/checkout.html'>Checkout</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-deployment-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/deployment-service.html'>Deployment</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/ninefold.html'>Ninefold</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/heroku.html'>Heroku</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/ansible-ubuntu.html'>Ansible Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/manual-ubuntu.html'>Manual Ubuntu Deployment</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_options.html'>Deployment Options</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment-service.html'>Deployment Service</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/deployment_tips.html'>Deployment Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/requesting_and_configuring_ssl.html'>Requesting/Configuring SSL</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/seo.html'>Advanced Topics</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/seo.html'>Search Engine Optimization</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/developer_tips.html'>Developer Tips</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/migration.html'>Migrating to Spree</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/security.html'>Security</a> <div class="toc"></div> </li>
+          <li><i class="icon-dot"></i><a href='/developer/testing.html'>Testing Spree Applications</a> <div class="toc"></div> </li>
+        </ul>
+      </li>
+      <li class='js-topic'>
+        <h3>
+          <a href="#" class="js-expand-btn collapsed toggle-advanced-menu"><i class="icon-right-open"></i></a>
+          <a href='/developer/upgrades/index.html'>Upgrade Guides</a>
+        </h3>
+        <ul class="js-guides">
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-sixty-to-point-seventy.html'>0.60.x to 0.70.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/point-seventy-to-one-dot-oh.html'>0.70.x to 1.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-oh-to-one-dot-one.html'>1.0.x to 1.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-one-to-one-dot-two.html'>1.1.x to 1.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-two-to-one-dot-three.html'>1.2.x to 1.3.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/one-dot-three-to-two-dot-oh.html'>1.3.x to 2.0.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-oh-to-two-dot-one.html'>2.0.x to 2.1.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-one-to-two-dot-two.html'>2.1.x to 2.2.x</a> <div
+          class="toc"></div></li>
+          <li><i class="icon-dot"></i><a href='/developer/upgrades/two-dot-two-to-two-dot-three.html'>2.2.x to 2.3.x</a> <div 
+          class="toc"></div></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+  </div>
+
+  <footer id="main-footer">
+
+  <div class="footer-top">
+    <div class="container">
+      <div id="link-blocks" class="row">
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Product</h3>
+          <ul>
+            <li><a href='http://spreecommerce.com/storefront'>Platform</a></li>
+            <li><a href='http://spreecommerce.com/hub/'>Hub</a></li>
+            <li><a href='http://spreecommerce.com/training_and_support'>Support</a></li>
+            <li><a href='http://spreecommerce.com/privacy_policy'>Privacy Policy</a></li>
+            <li><a href='http://spreecommerce.com/terms_of_service'>Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Developers</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/storefront">Overview</a></li>
+            <li><a href="http://guides.spreecommerce.com/developer">Documenation</a></li>
+            <li><a href="http://spreecommerce.com/storefront">Community</a></li>
+            <li><a href="http://spreecommerce.com/license">License</a></li>
+          </ul>
+        </div>
+        <div class="link-block three columns">
+          <h3 class="block-title">Partners</h3>
+          <ul>
+            <li><a href="http://spreecommerce.com/solution_partners">Pro Services</a></li>
+            <li><a href="http://spreecommerce.com/training_and_support">Training</a></li>
+            <li><a href="http://spreecommerce.com/become_a_partner">Partnership Program</a></li>
+            <li><a href="http://spreecommerce.com/partners/payments">Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="link-block four columns">
+          <h3 class="block-title">About Spree Commerce</h3>
+          <p>
+            Spree Commerce is an automated enterprise solution built specifically for ecommerce. We effectively manage your operations so you can focus on serving your customers and growing your business.
+          </p>
+        </div>
+
+        <div class="link-block three columns">
+          <h3 class="block-title">Take it for a test drive</h3>
+          <p>
+            You can even create your own personal store.
+          </p>
+          <a href="http://spreecommerce.com/demo" target="_blank" class="button"><i class="icon-right"></i> Try The Demo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row">
+
+        <div class="copyright ten columns">
+          <p>
+            Spree, Spree Commerce and “Behind the Best Storefronts” are all trademarks of Spree Commerce Inc.
+          </p>
+        </div>
+
+        <div class="social-icons six columns">
+          <ul class="inline">
+            <li><a href="https://github.com/spree/spree" target="_blank"><i class="icon-github-circled"></i></a></li>
+            <li><a href="https://twitter.com/spreecommerce" target="_blank"><i class="icon-twitter-circled"></i></a></li>
+            <li><a href="https://www.facebook.com/spreecommerce" target="_blank"><i class="icon-facebook-circled"></i></a></li>
+            <li><a href="https://plus.google.com/110792218022940311363" target="_blank"><i class="icon-gplus-circled"></i></a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- google analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3914566-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </body>
+</html>
